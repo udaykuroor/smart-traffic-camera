@@ -1,1 +1,0 @@
-print("Project Start Day 1")
