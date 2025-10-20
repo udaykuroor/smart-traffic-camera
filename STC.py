@@ -1,1 +1,1 @@
-print("Hello Smart Traffic Project!")
+print("Project Start Day 1")
