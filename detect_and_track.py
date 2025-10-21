@@ -16,7 +16,7 @@ print(f"✓ Video opened successfully")
 print(f"Total frames: {int(cap.get(cv2.CAP_PROP_FRAME_COUNT))}")
 
 # 3. Load YOLOv8
-model = YOLO("yolov8n.pt")
+model = YOLO("yolo12n.pt")
 
 # 4. Prepare video writer
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -34,8 +34,8 @@ while True:
     if not ret:
         break
 
-    # Run YOLOv8 tracking (ByteTrack under the hood)
-    results = model.track(frame, persist=True, tracker="bytetrack.yaml")
+    # Run YOLO12 tracking (ByteTrack under the hood)
+    results = model.track(frame, persist=True, conf = 0.4, classes=[2, 3, 5, 7], tracker="bytetrack.yaml")
     
     # Get result for the current frame
     if len(results) > 0:
