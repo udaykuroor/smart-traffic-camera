@@ -1,0 +1,2 @@
+pip install ultralytics opencv-python torch transformers pillow timm
+pip install --upgrade pip
