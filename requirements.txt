@@ -1,2 +1,5 @@
 pip install ultralytics opencv-python torch transformers pillow timm
+
+pip install streamlit pandas numpy opencv-python Pillow ultralytics torch torchvision torchaudio transformers
+
 pip install --upgrade pip
