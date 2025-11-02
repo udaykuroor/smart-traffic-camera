@@ -8,8 +8,14 @@ import pandas as pd
 import os
 from collections import defaultdict
 
-# 2. Load video
-video_path = "C:/Users/user/Downloads/RTV.mp4"
+
+
+import sys
+video_path = sys.argv[1]
+pixels_per_meter = float(sys.argv[2])
+
+
+
 cap = cv2.VideoCapture(video_path)
 
 # Check if video opened
@@ -49,7 +55,7 @@ print(f"CLIP model loaded on {clip_device}")
 
 # 5. Speed and Color Estimation Setup
 # Speed estimation parameters
-PIXELS_PER_METER = float(input("Enter pixels per meter: "))  # User-defined conversion factor (adjust based on camera height/angle)
+#PIXELS_PER_METER = float(input("Enter pixels per meter: "))  # User-defined conversion factor (adjust based on camera height/angle)
 FPS = int(cap.get(cv2.CAP_PROP_FPS))
 SPEED_SMOOTHING_FRAMES = 5   # Number of frames to average speed over
 
@@ -223,7 +229,7 @@ def calculate_speed(positions, fps):
     pixel_distance = np.sqrt((end_pos[0] - start_pos[0])**2 + (end_pos[1] - start_pos[1])**2)
     
     # Convert to meters
-    distance_meters = pixel_distance / PIXELS_PER_METER
+    distance_meters = pixel_distance / pixels_per_meter
     
     # Calculate time elapsed
     time_seconds = (end_pos[2] - start_pos[2]) / fps
@@ -686,16 +692,18 @@ for track_id, data in vehicle_data.items():
     duration_seconds = duration_frames / fps
     
     results_data.append({
-        'Vehicle_ID': track_id,
+        'Vehicle ID': track_id,
         'Type': vehicle_type,
         'Color': dominant_color,
-        'Speed_kmh': round(avg_speed, 1),
+        'Speed (km/h)': round(avg_speed, 1),
         'Confidence': round(data['class_confidence'], 2),
-        'Duration_seconds': round(duration_seconds, 1),
-        'Frames_detected': len(data['positions'])
+        'Duration in seconds': round(duration_seconds, 1),
+        'Frames detected': len(data['positions'])
     })
 
 # Create DataFrame and save to CSV
+output_csv = "outputs/vehicle_tracking_results.csv"
+output_video = "outputs/output_tracking.mp4"
 df = pd.DataFrame(results_data)
 df.to_csv('results.csv', index=False)
 
@@ -704,4 +712,4 @@ print(f"Output video saved to 'output_video.mp4'")
 print(f"Results saved to 'results.csv'")
 print(f"Detected {len(results_data)} vehicles:")
 for result in results_data:
-    print(f"  ID {result['Vehicle_ID']}: {result['Type']} {result['Color']} {result['Speed_kmh']}km/h")
+    print(f"  ID {result['Vehicle ID']}: {result['Type']} {result['Color']} {result['Speed (km/h)']}km/h")
