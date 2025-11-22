@@ -19,7 +19,7 @@ def about_page():
 
     The **Smart Traffic Camera** is an intelligent video analytics tool that uses **computer vision**
     to detect, classify, and track vehicles in real-time.  
-    It leverages **YOLOv12** for detection, **ByteTrack** for tracking, and **CLIP** for classification.
+    It leverages **YOLOv8** for detection, **ByteTrack** for tracking, and **CLIP** for classification.
 
     #### Features
     - Vehicle detection and tracking with persistent IDs
@@ -99,7 +99,7 @@ def home_page():
     # Processing logic
     if process_button:
         if uploaded_video is None:
-            st.warning("⚠️ Please upload a video first.")
+            st.warning("Please upload a video first.")
             return
 
         # Save uploaded video
@@ -157,17 +157,17 @@ def home_page():
                             st.text(result.stdout)
 
                 else:
-                    st.error(f"❌ Processing failed with exit code {result.returncode}")
+                    st.error(f"Processing failed with exit code {result.returncode}")
                     with st.expander("Show error details"):
                         st.code(result.stderr if result.stderr else result.stdout)
                     return
                 
                     
             except FileNotFoundError:
-                st.error(f"❌ Could not find Python or detection script")
+                st.error(f"Could not find Python or detection script")
                 return
             except Exception as e:
-                st.error(f"❌ Error occurred: {str(e)}")
+                st.error(f"Error occurred: {str(e)}")
                 return
 
         # Display results
@@ -175,11 +175,11 @@ def home_page():
         
         # Check if outputs exist
         if not output_video_path.exists():
-            st.error("❌ Output video not found. Check the detection script output.")
+            st.error("Output video not found. Check the detection script output.")
             return
         
         if not output_csv_path.exists():
-            st.error("❌ Results CSV not found. Check the detection script output.")
+            st.error("Results CSV not found. Check the detection script output.")
             return
 
         # Display video
