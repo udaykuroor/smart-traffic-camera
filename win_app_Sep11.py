@@ -184,7 +184,6 @@ def home_page():
                 
                 if result.returncode == 0:
                     st.success("✅ Processing complete!")
-                    st.balloons()
                     
                     # Wait for file to be fully written
                     time.sleep(2)
