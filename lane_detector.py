@@ -48,7 +48,7 @@ def detect_lane_width_pixels(video_path, num_samples=10):
         
         # Focus on lower half of frame (where road lanes are)
         roi_y_start = int(frame_height * 0.5)
-        roi_y_end = int(frame_height * 0.9)
+        roi_y_end = int(frame_height * 0.6)
         edges_roi = edges[roi_y_start:roi_y_end, :]
         
         # Detect lines using Hough Transform
