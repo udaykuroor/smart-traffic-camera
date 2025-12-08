@@ -15,7 +15,7 @@ except:
     st.set_page_config(page_title="DriveSense AI", layout="wide")
 
 # Configuration
-DETECTION_SCRIPT = "detect_track_final.py"
+DETECTION_SCRIPT = "detect_track_final-4.py"
 UPLOAD_DIR = Path("uploads")
 OUTPUT_DIR = Path("outputs")
 ASSETS_DIR = Path("assets")
