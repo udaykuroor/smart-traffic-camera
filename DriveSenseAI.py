@@ -6,21 +6,15 @@ from pathlib import Path
 import sys
 import time
 from PIL import Image
+import base64
 
-# Custom page config with icon
-try:
-    icon = Image.open("assets/traffic_icon.png")
-    st.set_page_config(page_title="DriveSense AI", layout="wide")
-except:
-    st.set_page_config(page_title="DriveSense AI", layout="wide")
-
+st.set_page_config(page_title="DriveSense AI", layout="wide", page_icon="icon.png")
 # Configuration
 DETECTION_SCRIPT = "detect_track_final-4.py"
 UPLOAD_DIR = Path("uploads")
 OUTPUT_DIR = Path("outputs")
 ASSETS_DIR = Path("assets")
 
-# Initialize session state
 if 'processed' not in st.session_state:
     st.session_state.processed = False
 if 'output_video_path' not in st.session_state:
@@ -64,26 +58,43 @@ def about_page():
 
     ---
     **Developed by:**  
-    Uday, Anupam, Abdullah, Vaishak, Praveena, and Akhilesh
+    Uday, Anupam, Abdullah, Vaishak and Praveena
     
     **Project:** Computer Vision
     """)
 
 
 def home_page():
-    # Add logo when ready
-    if (ASSETS_DIR / "logo.png").exists():
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            st.image(str(ASSETS_DIR / "logo.png"), width=250)
-        st.write("")
-    
-    st.markdown("""
-    <div style="background-color:#1E88E5; padding: 1.5rem; border-radius: 10px; text-align:center;">
-        <h1 style="color: white; margin-bottom: 0;">DriveSense AI</h1>
-        <p style="color: #E3F2FD; font-size: 1.1rem;">Vehicle Detection, Tracking & Analytics powered by AI</p>
-    </div>
-    """, unsafe_allow_html=True)
+   
+    logo_path = Path("logo.png")
+    logo_img_tag = ""
+    if logo_path.exists():
+        try:
+            b64 = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
+            logo_img_tag = f'<img src="data:image/png;base64,{b64}" alt="DriveSense AI" style="height:72px; display:block; margin:0 auto;" />'
+            b64 = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
+            logo_height = 72 
+            logo_max_width = 1000 
+            logo_border_radius = 12  
+            logo_box_shadow = "0 4px 10px rgba(0,0,0,0.18)"
+            logo_style = (
+                f"height:{logo_height}px; max-width:{logo_max_width}px; display:block; "
+                f"margin:0 auto; border-radius:{logo_border_radius}px; "
+                f"box-shadow:{logo_box_shadow}; object-fit:contain;")
+
+            logo_img_tag = f'<img src="data:image/png;base64,{b64}" alt="DriveSense AI" style="{logo_style}" />'
+        except Exception:
+            logo_img_tag = ""
+
+    st.markdown(
+        f"""
+        <div style="background-color:#106CB6; padding: 1.0rem 1.5rem; border-radius: 10px; text-align:center;">
+            {logo_img_tag or '<h1 style="color: white; margin:0;">DriveSense AI</h1>'}
+            <p style="color: #E3F2FD; font-size: 1.05rem; margin-top:8px;">Vehicle Detection, Tracking & Analytics powered by AI</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     
     st.write("")
     st.write("")
@@ -211,7 +222,7 @@ def home_page():
                 
                 if result.returncode == 0:
                     st.success("✅ Processing complete!")
-                    
+                    st.balloons()
                     # Wait for file to be fully written
                     time.sleep(2)
                     
@@ -422,14 +433,55 @@ def display_results():
     except Exception as e:
         st.error(f"Error reading results: {str(e)}")
 
+logo_path = Path("icon.png")
 
-# Page navigation
+if logo_path.exists():
+    try:
+        b64 = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
+        nav_label = f'<img src="data:image/png;base64,{b64}" alt="DriveSense AI" style="height:48px; vertical-align:middle;" />'
+    except Exception:
+        nav_label = ""
 pages = {
-    "DriveSense AI": [
-        st.Page(home_page, title="Home", icon="🏠"),
-        st.Page(about_page, title="About", icon="ℹ️"),
-    ]
+    "Home": home_page,
+    "About": about_page,
 }
-
-pg = st.navigation(pages)
-pg.run()
+if 'selected_page' not in st.session_state:
+    st.session_state.selected_page = "Home"
+col_left, col_title = st.columns([2,6])
+st.markdown(
+    """
+    <style>
+    /* Style all Streamlit buttons */
+    div.stButton > button {
+        background-color: #106CB6 !important;
+        color: #ffffff !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+        font-weight: 600 !important;
+        box-shadow: none !important;
+        border: 1px solid rgba(0,0,0,0.05) !important;
+    }
+    div.stButton > button:hover {
+        background-color: #0d57a0 !important;
+        color: #ffffff !important;
+    }
+    div.stButton > button:focus {
+        outline: 2px solid rgba(16,108,182,0.25) !important;
+        box-shadow: 0 4px 10px rgba(16,108,182,0.2) !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+with col_left:
+    icon_col, home_col, about_col = st.columns([5, 6, 6])
+    with icon_col:
+        st.markdown(nav_label, unsafe_allow_html=True)
+    with home_col:
+        if st.button("Home", key="nav_home" ):
+            st.session_state.selected_page = "Home"
+    with about_col:
+        if st.button("About", key="nav_about"):
+            st.session_state.selected_page = "About"
+st.markdown("---")
+pages[st.session_state.selected_page]()
