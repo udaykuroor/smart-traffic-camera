@@ -1,6 +1,7 @@
-DO NOT MAKE CHANGES ON MAIN. CLONE REPO LOCALLY.
+# DO NOT MAKE CHANGES ON MAIN. CLONE REPO LOCALLY.
 
-venv setup:
+# venv setup:
+
 python -m venv venv
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force    
 .\venv\Scripts\Activate.ps1
