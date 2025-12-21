@@ -58,7 +58,7 @@ def about_page():
 
     ---
     **Developed by:**  
-    Uday, Anupam, Abdullah, Vaishak and Praveena
+    Uday, Anupam, Abdullah, and Vaishak 
     
     **Project:** Computer Vision
     """)
