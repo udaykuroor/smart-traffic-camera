@@ -8,8 +8,8 @@ import time
 from PIL import Image
 import base64
 
-st.set_page_config(page_title="DriveSense AI", layout="wide", page_icon="icon.png")
-# Configuration
+st.set_page_config(page_title="HIGHW.AI", layout="wide", page_icon="icon.png")
+
 DETECTION_SCRIPT = "detect_track_final-4.py"
 UPLOAD_DIR = Path("uploads")
 OUTPUT_DIR = Path("outputs")
@@ -28,7 +28,7 @@ def about_page():
     st.markdown("""
     ### About
 
-    **DriveSense AI** is an intelligent video analytics tool that uses **computer vision**
+    **HIGHW.AI** is an intelligent video analytics tool that uses **computer vision**
     to detect, classify, and track vehicles in real-time.  
     It leverages **YOLOv8** for detection, **ByteTrack** for tracking, and **CLIP** for classification.
 
@@ -58,54 +58,24 @@ def about_page():
 
     ---
     **Developed by:**  
-    Uday, Anupam, Abdullah, and Vaishak 
+    Uday, Abdullah, Anupam, and Vaishak 
     
     **Project:** Computer Vision
     """)
 
 
-def home_page():
+def vehicle_detection_page():
    
-    logo_path = Path("logo.png")
-    logo_img_tag = ""
-    if logo_path.exists():
-        try:
-            b64 = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
-            logo_img_tag = f'<img src="data:image/png;base64,{b64}" alt="DriveSense AI" style="height:72px; display:block; margin:0 auto;" />'
-            b64 = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
-            logo_height = 72 
-            logo_max_width = 1000 
-            logo_border_radius = 12  
-            logo_box_shadow = "0 4px 10px rgba(0,0,0,0.18)"
-            logo_style = (
-                f"height:{logo_height}px; max-width:{logo_max_width}px; display:block; "
-                f"margin:0 auto; border-radius:{logo_border_radius}px; "
-                f"box-shadow:{logo_box_shadow}; object-fit:contain;")
+    st.write("")
+    st.write("")
 
-            logo_img_tag = f'<img src="data:image/png;base64,{b64}" alt="DriveSense AI" style="{logo_style}" />'
-        except Exception:
-            logo_img_tag = ""
-
-    st.markdown(
-        f"""
-        <div style="background-color:#106CB6; padding: 1.0rem 1.5rem; border-radius: 10px; text-align:center;">
-            {logo_img_tag or '<h1 style="color: white; margin:0;">DriveSense AI</h1>'}
-            <p style="color: #E3F2FD; font-size: 1.05rem; margin-top:8px;">Vehicle Detection, Tracking & Analytics powered by AI</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
     
-    st.write("")
-    st.write("")
-
-    # Check if detection script exists
     if not Path(DETECTION_SCRIPT).exists():
         st.error(f"Detection script '{DETECTION_SCRIPT}' not found.")
         st.info("Please ensure detect_and_track_v2.py is in the same directory as this Streamlit app.")
         return
 
-    # Check if lane detector exists
+  
     if not Path("lane_detector.py").exists():
         st.error(f"Lane detector script 'lane_detector.py' not found.")
         st.info("Please ensure lane_detector.py is in the same directory.")
@@ -169,17 +139,17 @@ def home_page():
     st.write("")
     process_button = st.button("Process Video", use_container_width=True, type="primary")
 
-    # Create directories
+   
     UPLOAD_DIR.mkdir(exist_ok=True)
     OUTPUT_DIR.mkdir(exist_ok=True)
 
-    # Processing logic
+   
     if process_button:
         if uploaded_video is None:
             st.warning("⚠️ No video has been uploaded.")
             return
 
-        # Save uploaded video
+      
         video_path = UPLOAD_DIR / uploaded_video.name
         with open(video_path, "wb") as f:
             f.write(uploaded_video.read())
@@ -205,7 +175,7 @@ def home_page():
             str(lane_width_meters)
         ]
 
-        # Run processing
+       
         st.markdown("---")
         st.subheader("🔄 Processing Video...")
         
@@ -414,7 +384,7 @@ def display_results():
                 color_counts = filtered_df['Color'].value_counts()
                 st.bar_chart(color_counts)
             
-            # Download CSV
+           
             st.write("")
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
@@ -433,21 +403,19 @@ def display_results():
     except Exception as e:
         st.error(f"Error reading results: {str(e)}")
 
-logo_path = Path("icon.png")
+def home_page():
+    st.image('OnlyCars.jpg', use_container_width=True)
+    st.markdown('### Developer Details')
+    st.markdown('Frontend developed by Abdullah using streamlit')
+    st.markdown('Backend done by Uday, Anupam and Vaishak')
 
-if logo_path.exists():
-    try:
-        b64 = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
-        nav_label = f'<img src="data:image/png;base64,{b64}" alt="DriveSense AI" style="height:48px; vertical-align:middle;" />'
-    except Exception:
-        nav_label = ""
 pages = {
+    "Vehicle Detection": vehicle_detection_page,
     "Home": home_page,
     "About": about_page,
 }
 if 'selected_page' not in st.session_state:
     st.session_state.selected_page = "Home"
-col_left, col_title = st.columns([2,6])
 st.markdown(
     """
     <style>
@@ -456,10 +424,11 @@ st.markdown(
         background-color: #106CB6 !important;
         color: #ffffff !important;
         border-radius: 8px !important;
-        padding: 8px 12px !important;
+        padding: 4px 8px !important;
         font-weight: 600 !important;
         box-shadow: none !important;
         border: 1px solid rgba(0,0,0,0.05) !important;
+        white-space: nowrap !important;
     }
     div.stButton > button:hover {
         background-color: #0d57a0 !important;
@@ -469,19 +438,65 @@ st.markdown(
         outline: 2px solid rgba(16,108,182,0.25) !important;
         box-shadow: 0 4px 10px rgba(16,108,182,0.2) !important;
     }
+    /* Reduce gap between columns */
+    .st-emotion-cache-1r6slb0 {
+        gap: 0px !important;
+        padding: 0 !important;
+    }
+    /* Remove padding from individual columns */
+    [data-testid="column"] {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
     </style>
     """,
     unsafe_allow_html=True,
 )
-with col_left:
-    icon_col, home_col, about_col = st.columns([5, 6, 6])
-    with icon_col:
-        st.markdown(nav_label, unsafe_allow_html=True)
-    with home_col:
-        if st.button("Home", key="nav_home" ):
-            st.session_state.selected_page = "Home"
-    with about_col:
-        if st.button("About", key="nav_about"):
-            st.session_state.selected_page = "About"
+
+st.markdown('<div style="text-align: center;">', unsafe_allow_html=True)
+
+logo_cols = st.columns([1])
+with logo_cols[0]:
+
+    logo_path = Path("logo.png")
+    logo_img_tag = ""
+    if logo_path.exists():
+        try:
+            b64 = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
+            logo_height = 72 
+            logo_max_width = 1000 
+            logo_border_radius = 12  
+            logo_box_shadow = "0 4px 10px rgba(0,0,0,0.18)"
+            logo_style = (
+                f"height:{logo_height}px; max-width:{logo_max_width}px; display:block; "
+                f"margin:0 auto; border-radius:{logo_border_radius}px; "
+                f"box-shadow:{logo_box_shadow}; object-fit:contain;")
+            logo_img_tag = f'<img src="data:image/png;base64,{b64}" alt="DriveSense AI" style="{logo_style}" />'
+        except Exception:
+            logo_img_tag = ""
+    
+    st.markdown(
+        f"""
+        <div style="background-color:#106CB6; padding: 0.5rem 1.0rem; border-radius: 10px; text-align:center; width: 100%;">
+            {logo_img_tag or '<h1 style="color: white; margin:0;">DriveSense AI</h1>'}
+            <p style="color: #E3F2FD; font-size: 0.9rem; margin-top:4px;">Vehicle Detection, Tracking & Analytics powered by AI</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+st.markdown('</div>', unsafe_allow_html=True)
+
+col1, col2, col3, col4, col5, col6, col7 = st.columns([3, 2, 1, 2, 1, 2, 3])
+with col3:
+    if st.button("Home", key="nav_home"):
+        st.session_state.selected_page = "Home"
+with col4:
+    if st.button("Vehicle Detection", key="nav_vehicle"):
+        st.session_state.selected_page = "Vehicle Detection"        
+with col5:
+    if st.button("About", key="nav_about"):
+        st.session_state.selected_page = "About"
+
+st.markdown('</div>', unsafe_allow_html=True)
 st.markdown("---")
 pages[st.session_state.selected_page]()
