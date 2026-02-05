@@ -11,8 +11,14 @@ from tqdm import tqdm
 from lane_detector import calculate_pixels_per_meter
 
 import sys
-video_path = sys.argv[1]
-lane_width_meters = float(sys.argv[2])
+# Prefer a CLI-provided video path and lane width when available (used by Streamlit front-end)
+if len(sys.argv) >= 2:
+    video_path = sys.argv[1]
+else:
+    video_path = os.path.expanduser("~/Desktop/HIGHW.AI/A7959259-download.h264")
+video_path = os.path.expanduser(str(video_path))
+print(f"Video path: {video_path}")
+lane_width_meters = float(sys.argv[2]) if len(sys.argv) >= 3 else 3.5
 
 # Create output directory
 os.makedirs('outputs', exist_ok=True)
@@ -31,6 +37,7 @@ print("=" * 60)
 print()
 
 cap = cv2.VideoCapture(video_path)
+print (cap)
 
 # Check if video opened
 if not cap.isOpened():
@@ -435,11 +442,28 @@ def classify_car(image_crop):
         return None, 0.0, "unknown", None
 
 # 6. Prepare video writer
-fourcc = cv2.VideoWriter_fourcc(*'avc1')
-fps = int(cap.get(cv2.CAP_PROP_FPS))
+fps = int(cap.get(cv2.CAP_PROP_FPS)) or 25
 width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-out = cv2.VideoWriter('outputs/output_tracking.mp4', fourcc, fps, (width, height))
+output_video_filename = 'outputs/output_tracking.mp4'
+# Try several codecs until one works (some OpenCV builds lack certain codecs)
+codec_candidates = ['avc1', 'mp4v', 'XVID', 'H264']
+out = None
+for codec in codec_candidates:
+    fourcc = cv2.VideoWriter_fourcc(*codec)
+    candidate = cv2.VideoWriter(output_video_filename, fourcc, fps, (width, height))
+    if candidate.isOpened():
+        out = candidate
+        print(f"VideoWriter opened with codec '{codec}' -> {output_video_filename}")
+        break
+    else:
+        try:
+            candidate.release()
+        except Exception:
+            pass
+if out is None:
+    print("ERROR: Could not open VideoWriter with available codecs. Video output will not be saved.")
+    print("Tip: install ffmpeg / libx264 or try a different OpenCV build.")
 
 if SPEED_BAND_ENABLED:
     lane_roi_y_start = int(height * LANE_ROI_Y_START_RATIO)  # same ROI as lane_detector
@@ -826,7 +850,8 @@ while True:
                 )
 
     
-    out.write(frame)
+    if out is not None:
+        out.write(frame)
     
     frame_count += 1
     pbar.update(1)
@@ -835,7 +860,8 @@ while True:
 pbar.close()
 
 cap.release()
-out.release()
+if out is not None:
+    out.release()
 cv2.destroyAllWindows()
 
 import time
@@ -887,4 +913,35 @@ df.to_csv('outputs/vehicle_tracking_results.csv', index=False)
 
 print("\nProcessing complete!")
 print(f"Tracked {len(results_data)} vehicles")
-print("Output saved to outputs/")
+
+# --- Optional: post-process with ffmpeg to improve web playback ---
+try:
+    import shutil, subprocess
+    ffmpeg_path = shutil.which('ffmpeg')
+    if ffmpeg_path:
+        print('\nPost-processing video with ffmpeg to improve web playback...')
+        src = 'outputs/output_tracking.mp4'
+        fmph = 'outputs/output_tracking_faststart.mp4'
+        webm = 'outputs/output_tracking.webm'
+        # 1) Create H264 mp4 with moov atom at front (faststart)
+        cmd_mp4 = [ffmpeg_path, '-y', '-i', src, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', fmph]
+        try:
+            subprocess.run(cmd_mp4, check=True, capture_output=True, text=True)
+            # Replace original if successful
+            shutil.move(fmph, src)
+            print('✓ MP4 faststart re-mux complete (H264 + faststart)')
+        except Exception as e:
+            print(f'⚠ ffmpeg mp4 conversion failed: {e}')
+        # 2) Also create a WebM copy (VP9/VP8) for broad browser support
+        cmd_webm = [ffmpeg_path, '-y', '-i', src, '-c:v', 'libvpx-vp9', '-b:v', '0', '-crf', '30', '-c:a', 'libopus', webm]
+        try:
+            subprocess.run(cmd_webm, check=True, capture_output=True, text=True)
+            print('✓ WebM copy created (outputs/output_tracking.webm)')
+        except Exception as e:
+            print(f'⚠ ffmpeg webm creation failed: {e}')
+    else:
+        print('\nffmpeg not found on system; skipping web-friendly post-processing.\nTip: sudo apt install ffmpeg')
+except Exception as e:
+    print(f'Post-processing check failed: {e}')
+
+print('Output saved to outputs/')
