@@ -1,4 +1,4 @@
- import streamlit as st
+import streamlit as st
 import os
 import pandas as pd
 import subprocess
@@ -244,7 +244,34 @@ def display_results():
 
     # Display video
     st.subheader("🎥 Processed Video")
-    st.video(str(output_video_path))
+    try:
+     
+        webm_path = output_video_path.with_name('output_tracking.webm')
+        if webm_path.exists():
+            with open(webm_path, 'rb') as wf:
+                st.video(wf.read())
+        else:
+          
+            with open(output_video_path, "rb") as vf:
+                video_bytes = vf.read()
+            st.video(video_bytes)
+
+            
+            try:
+                import base64 as _b64
+                b64 = _b64.b64encode(video_bytes).decode('ascii')
+                html = (
+                    f'<video controls style="max-width:100%">'
+                    f'<source src="data:video/mp4;base64,{b64}" type="video/mp4">'
+                    'Your browser does not support the video tag.'
+                    '</video>'
+                )
+                st.expander("🎬 Alternative inline player (fallback)").markdown(html, unsafe_allow_html=True)
+            except Exception:
+               
+                pass
+    except Exception as e:
+        st.error(f"Could not load video for inline playback ({e}). You can download it below.")
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
