@@ -1,4 +1,4 @@
-import streamlit as st
+ import streamlit as st
 import os
 import pandas as pd
 import subprocess
@@ -458,28 +458,29 @@ st.markdown('<div style="text-align: center;">', unsafe_allow_html=True)
 logo_cols = st.columns([1])
 with logo_cols[0]:
 
-    logo_path = Path("logo.png")
+    logo_path = Path("logo.jpg")
     logo_img_tag = ""
     if logo_path.exists():
         try:
             b64 = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
-            logo_height = 72 
-            logo_max_width = 1000 
+            logo_height = 100 
+            logo_max_width = 10000 
             logo_border_radius = 12  
             logo_box_shadow = "0 4px 10px rgba(0,0,0,0.18)"
             logo_style = (
                 f"height:{logo_height}px; max-width:{logo_max_width}px; display:block; "
                 f"margin:0 auto; border-radius:{logo_border_radius}px; "
                 f"box-shadow:{logo_box_shadow}; object-fit:contain;")
-            logo_img_tag = f'<img src="data:image/png;base64,{b64}" alt="DriveSense AI" style="{logo_style}" />'
+            logo_img_tag = f'<img src="data:image/png;base64,{b64}" alt="NEXORA" style="{logo_style}" />'
         except Exception:
             logo_img_tag = ""
     
     st.markdown(
         f"""
+        
         <div style="background-color:#106CB6; padding: 0.5rem 1.0rem; border-radius: 10px; text-align:center; width: 100%;">
-            {logo_img_tag or '<h1 style="color: white; margin:0;">DriveSense AI</h1>'}
-            <p style="color: #E3F2FD; font-size: 0.9rem; margin-top:4px;">Vehicle Detection, Tracking & Analytics powered by AI</p>
+            {logo_img_tag or '<h1 style="color: white; margin:0;">HIGHW.AI</h1>'}
+            <p style="color: #E3F2FD; font-size: 1.0rem; margin-top:4px;"> HIGHW.AI - Vehicle Detection, Tracking & Analytics powered by AI</p>
         </div>
         """,
         unsafe_allow_html=True,
